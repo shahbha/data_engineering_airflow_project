@@ -35,13 +35,12 @@ class FactsCalculatorOperator(BaseOperator):
         self.groupby_column = groupby_column
 
     def execute(self, context):
-        redshift_hook = PostgresHook(self.redshift_conn_id)
-
-        redshift_hook.run(self.facts_sql_template.format(
+        redshift = PostgresHook(postgres_conn_id=self.redshift_conn_id)
+        facts_sql = FactsCalculatorOperator.facts_sql_template.format(
+            origin_table=self.origin_table,
             destination_table=self.destination_table,
-            groupby_column=self.groupby_column,
             fact_column=self.fact_column,
-            origin_table=self.origin_table
-        ))
+            groupby_column=self.groupby_column
+        )
 
-        pass
+        redshift.run(facts_sql)
